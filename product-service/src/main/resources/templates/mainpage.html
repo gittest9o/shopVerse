@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopVerse - Ваш онлайн-маркетплейс</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #005bff;
+            --secondary: #ff6b00;
+            --dark: #1e1e1e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --border: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 8px;
+            color: var(--secondary);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 20px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-bar button {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 7px 20px;
+            cursor: pointer;
+            height: 34px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: var(--gray);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .action-btn i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .cart-btn {
+            position: relative;
+        }
+
+        .cart-count {
+            display: none !important;
+        }
+
+        /* Main Content */
+        .banner {
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 300px;
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin: 30px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            height: 180px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-title {
+            font-size: 16px;
+            margin-bottom: 10px;
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            color: #ffc107;
+            margin-bottom: 8px;
+        }
+
+        .rating-count {
+            color: var(--gray);
+            font-size: 14px;
+            margin-left: 8px;
+        }
+
+        .product-price {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        /* Новые стили для кнопок в карточке товара */
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .add-to-cart, .details-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .add-to-cart {
+            background: var(--primary);
+            color: white;
+        }
+
+        .add-to-cart:hover {
+            background: #004acc;
+        }
+
+        .details-btn {
+            background: #f1f1f1;
+            color: var(--dark);
+            text-decoration: none;
+        }
+
+        .details-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* Promotions Section */
+        .promotions {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        .promotion-card {
+            min-width: 250px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .promotion-card i {
+            font-size: 32px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .promotion-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #b0b0b0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid #444;
+            color: #b0b0b0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .flex {
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                order: 1;
+            }
+
+            .search-bar {
+                order: 3;
+                margin: 15px 0;
+                max-width: 100%;
+            }
+
+            .header-actions {
+                order: 2;
+            }
+
+            .banner {
+                height: 200px;
+                font-size: 24px;
+            }
+        }
+
+        /* Стили для сообщения о пустом результате поиска */
+        .empty-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        /* Стили для сообщения об ошибке */
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header>
+    <div class="container">
+        <div class="flex" style="padding: 15px 0;">
+            <a th:href="@{/}" class="logo">
+                <i class="fas fa-globe-americas"></i>
+                ShopVerse
+            </a>
+
+            <!-- Поисковая строка с формой -->
+            <form class="search-bar" th:action="@{/products}" method="get" id="searchForm">
+                <input type="text" name="query" placeholder="Найти товары, категории, бренды..."
+                       th:value="${searchQuery != null} ? ${searchQuery} : ''"
+                       id="searchInput">
+                <button type="submit"><i class="fas fa-search"></i> Найти</button>
+            </form>
+
+            <div class="header-actions">
+                <!-- Условное отображение кнопки Войти/Профиль -->
+                <a th:if="${isAuthenticated}" th:href="@{/profile}" class="action-btn">
+                    <i class="fas fa-user"></i>
+                    <span>Профиль</span>
+                </a>
+                <a th:unless="${isAuthenticated}" th:href="@{/auth/login}" class="action-btn">
+                    <i class="fas fa-user"></i>
+                    <span>Войти</span>
+                </a>
+
+                <a th:href="@{/cart}" class="action-btn cart-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Корзина</span>
+                    <span class="cart-count" th:if="${cartCount != null and cartCount > 0}" th:text="${cartCount}">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container">
+    <!-- Banner -->
+    <div class="banner">
+        <div>Добро пожаловать в ShopVerse!<br><small style="font-size: 18px; font-weight: 400;">Ваш надежный онлайн-маркетплейс</small></div>
+    </div>
+
+    <!-- Promotions -->
+    <div class="promotions">
+        <div class="promotion-card">
+            <i class="fas fa-truck"></i>
+            <h3 class="promotion-title">Бесплатная доставка</h3>
+            <p>При заказе от $25</p>
+        </div>
+        <div class="promotion-card">
+            <i class="fas fa-shield-alt"></i>
+            <h3 class="promotion-title">Гарантия качества</h3>
+            <p>Возврат в течение 30 дней</p>
+        </div>
+        <div class="promotion-card">
+            <i class="fas fa-headset"></i>
+            <h3 class="promotion-title">Поддержка 24/7</h3>
+            <p>Всегда готовы помочь</p>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="section-title">
+        <h2 th:text="${searchQuery != null} ?
+            'Результаты поиска: ' + ${searchQuery} :
+            'Наши товары'">Наши товары</h2>
+    </div>
+
+    <div class="products-grid">
+        <!-- Динамическая загрузка товаров через Thymeleaf -->
+        <div class="product-card" th:each="product : ${products}" th:data-product-id="${product.id}">
+            <div class="product-image">
+                <img th:src="${product.imageUrl}" alt="Product Image"
+                     th:attr="src=@{${product.imageUrl ?: 'https://via.placeholder.com/180x180?text=No+Image'}}">
+            </div>
+            <div class="product-info">
+                <h3 class="product-title" th:text="${product.name}">Название товара</h3>
+                <div class="product-rating">
+    <span th:each="star : ${#numbers.sequence(1, 5)}">
+        <i class="fa-star"
+           th:classappend="${star <= product.rating} ? 'fas' :
+                           (${star - 0.5 <= product.rating} ? 'fas fa-star-half-alt' : 'far')">
+        </i>
+    </span>
+                    <span class="rating-count" th:text="'(' + ${product.ratingCount} + ')'">(0)</span>
+                </div>
+
+                <div>
+                    <span class="product-price" th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">0.00</span>
+                </div>
+
+                <!-- Контейнер для кнопок -->
+                <div class="product-actions">
+                    <button class="add-to-cart" th:attr="onclick='addToCart(' + ${product.id} + ')'">
+                        <i class="fas fa-shopping-cart"></i> В корзину
+                    </button>
+                    <a th:href="@{/products/product/{id}(id=${product.id})}" class="details-btn">
+                        <i class="fas fa-info-circle"></i> Подробности
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сообщение если товары не найдены -->
+        <div th:if="${#lists.isEmpty(products)}" class="empty-results">
+            <h3>Товары не найдены</h3>
+            <p>Попробуйте изменить поисковый запрос</p>
+        </div>
+    </div>
+</main>
+
+<!-- Упрощенный Footer -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <h3>ShopVerse</h3>
+                <ul class="footer-links">
+                    <li><a href="#">О компании</a></li>
+                    <li><a href="#">Контакты</a></li>
+                    <li><a href="#">Вакансии</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Контакты</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-phone"></i> 8 (800) 555-35-35</li>
+                    <li><i class="fas fa-envelope"></i> support@shopverse.ru</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Витебск, ул. Маркетплейсная, 1</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            &copy; 2023 ShopVerse. Все права защищены.
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Функция для добавления товара в корзину
+    function addToCart(productId) {
+        fetch(`/cart/add/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Обновляем счетчик корзины
+                    updateCartCount();
+
+                    // Визуальная обратная связь
+                    const button = document.querySelector(`.add-to-cart[onclick="addToCart(${productId})"]`);
+                    const originalHTML = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check"></i> Добавлено';
+                    button.style.background = '#28a745';
+
+                    setTimeout(() => {
+                        button.innerHTML = originalHTML;
+                        button.style.background = '';
+                    }, 2000);
+                } else if (response.status === 401) {
+                    alert('Для добавления товара в корзину необходимо авторизоваться');
+                    window.location.href = '/auth/login';
+                } else {
+                    throw new Error('Ошибка добавления в корзину');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Не удалось добавить товар в корзину');
+            });
+    }
+
+    // Функция для обновления счетчика корзины
+    function updateCartCount() {
+        fetch('/cart/count')
+            .then(response => response.json())
+            .then(data => {
+                const cartCountElement = document.querySelector('.cart-count');
+                if (cartCountElement) {
+                    if (data.count > 0) {
+                        cartCountElement.textContent = data.count;
+                        cartCountElement.style.display = 'inline-block';
+                    } else {
+                        cartCountElement.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => console.error('Ошибка получения количества товаров в корзине:', error));
+    }
+
+    // Обработчик для поиска при нажатии Enter
+    document.querySelector('.search-bar input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('searchForm').submit();
+        }
+    });
+
+    // Валидация поискового запроса
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        const searchInput = document.getElementById('searchInput');
+        const query = searchInput.value.trim();
+
+        if (query.length < 2) {
+            e.preventDefault();
+            alert('Поисковый запрос должен содержать минимум 2 символа');
+            searchInput.focus();
+        }
+    });
+
+    // Обновляем счетчик корзины при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCartCount();
+    });
+</script>
+
+</body>
+</html>
