@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация | ShopVerse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #005bff;
+      --secondary: #ff6b00;
+      --dark: #1e1e1e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --border: #dee2e6;
+      --success: #28a745;
+      --error: #dc3545;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styles */
+    header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+
+    .flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo i {
+      margin-right: 8px;
+      color: var(--secondary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 20px;
+    }
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 12px;
+      color: var(--gray);
+      cursor: pointer;
+    }
+
+    .action-btn i {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    /* Main Content */
+    .registration-section {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0;
+    }
+
+    .registration-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .registration-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .registration-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .registration-title {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 30px;
+      color: var(--dark);
+    }
+
+    .registration-subtitle {
+      text-align: center;
+      color: var(--gray);
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+      font-size: 18px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 15px 15px 15px 45px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 91, 255, 0.2);
+      outline: none;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+      cursor: pointer;
+    }
+
+    .terms-container {
+      display: flex;
+      align-items: flex-start;
+      margin: 25px 0;
+    }
+
+    .terms-checkbox {
+      margin-right: 10px;
+      margin-top: 4px;
+    }
+
+    .terms-text {
+      font-size: 14px;
+      color: var(--gray);
+    }
+
+    .terms-text a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .terms-text a:hover {
+      text-decoration: underline;
+    }
+
+    .register-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-bottom: 20px;
+    }
+
+    .register-btn:hover {
+      background: #004acc;
+    }
+
+    .login-link {
+      text-align: center;
+      color: var(--gray);
+    }
+
+    .login-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Promotions Section */
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .benefit-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    .benefit-card i {
+      font-size: 32px;
+      color: var(--secondary);
+      margin-bottom: 15px;
+    }
+
+    .benefit-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 40px 0 20px;
+      margin-top: auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+    }
+
+    .footer-column h3 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .footer-column h3::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: var(--primary);
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: #b0b0b0;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 30px;
+      margin-top: 30px;
+      border-top: 1px solid #444;
+      color: #b0b0b0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .registration-card {
+        padding: 30px 20px;
+      }
+
+      .registration-title {
+        font-size: 24px;
+      }
+
+      .registration-container {
+        padding: 0 15px;
+      }
+
+      .flex {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .registration-card {
+        padding: 25px 15px;
+      }
+
+      .registration-title {
+        font-size: 22px;
+      }
+    }
+
+    /* Error Messages */
+    .error-message {
+      color: var(--error);
+      font-size: 14px;
+      margin-top: 5px;
+      display: block;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: var(--error);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #f5c2c7;
+    }
+  </style>
+</head>
+<body>
+<!-- Header -->
+<header>
+  <div class="container">
+    <div class="flex" style="padding: 15px 0;">
+      <a th:href="@{/}" class="logo">
+        <i class="fas fa-globe-americas"></i>
+        ShopVerse
+      </a>
+
+    </div>
+  </div>
+</header>
+
+<!-- Registration Section -->
+<section class="registration-section">
+  <div class="registration-container">
+    <div class="registration-card">
+      <h1 class="registration-title">Создать аккаунт</h1>
+      <p class="registration-subtitle">Присоединяйтесь к миллионам покупателей на ShopVerse</p>
+
+      <!-- Общее сообщение об ошибке -->
+      <div class="alert-danger" th:if="${emailError != null}">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${emailError}">Ошибка с email</span>
+      </div>
+
+      <form id="registration-form" th:action="@{/auth/register}" th:object="${userDTO}" method="post">
+        <div class="form-group">
+          <label class="form-label" for="firstName">Имя</label>
+          <div class="input-with-icon">
+            <i class="fas fa-userDTO input-icon"></i>
+            <input type="text" id="firstName" class="form-input"
+                   th:field="*{firstName}" placeholder="Введите ваше имя" required>
+          </div>
+          <span class="error-message" th:if="${#fields.hasErrors('firstName')}"
+                th:errors="*{firstName}"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="lastName">Фамилия</label>
+          <div class="input-with-icon">
+            <i class="fas fa-userDTO-tag input-icon"></i>
+            <input type="text" id="lastName" class="form-input"
+                   th:field="*{lastName}" placeholder="Введите вашу фамилию" required>
+          </div>
+          <span class="error-message" th:if="${#fields.hasErrors('lastName')}"
+                th:errors="*{lastName}"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <div class="input-with-icon">
+            <i class="fas fa-envelope input-icon"></i>
+            <input type="email" id="email" class="form-input"
+                   th:field="*{email}" placeholder="example@mail.com" required>
+          </div>
+          <span class="error-message" th:if="${#fields.hasErrors('email')}"
+                th:errors="*{email}"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Пароль</label>
+          <div class="input-with-icon">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="password" class="form-input"
+                   th:field="*{password}" placeholder="Создайте пароль" required>
+            <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+          </div>
+          <span class="error-message" th:if="${#fields.hasErrors('password')}"
+                th:errors="*{password}"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Подтвердите пароль</label>
+          <div class="input-with-icon">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="confirmPassword" class="form-input"
+                   name="confirmPassword" placeholder="Повторите пароль" required>
+            <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+          </div>
+          <span class="error-message" th:if="${passwordError != null}"
+                th:text="${passwordError}"></span>
+        </div>
+
+        <div class="terms-container">
+          <input type="checkbox" id="terms" class="terms-checkbox" required>
+          <label for="terms" class="terms-text">
+            Я принимаю <a href="#">Условия использования</a> и подтверждаю, что ознакомлен с <a href="#">Политикой конфиденциальности</a> ShopVerse
+          </label>
+        </div>
+
+        <button type="submit" class="register-btn">
+          <i class="fas fa-userDTO-plus"></i> Зарегистрироваться
+        </button>
+
+        <p class="login-link">
+          Уже есть аккаунт? <a th:href="@{/auth/login}">Войти</a>
+        </p>
+      </form>
+    </div>
+
+    <div class="benefits">
+      <div class="benefit-card">
+        <i class="fas fa-shipping-fast"></i>
+        <h3 class="benefit-title">Быстрая доставка</h3>
+        <p>Получите заказ в течение 1-3 дней</p>
+      </div>
+      <div class="benefit-card">
+        <i class="fas fa-shield-alt"></i>
+        <h3 class="benefit-title">Безопасность</h3>
+        <p>Ваши данные надежно защищены</p>
+      </div>
+      <div class="benefit-card">
+        <i class="fas fa-percent"></i>
+        <h3 class="benefit-title">Скидки</h3>
+        <p>Специальные предложения для участников</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-column">
+        <h3>ShopVerse</h3>
+        <ul class="footer-links">
+          <li><a href="#">О компании</a></li>
+          <li><a href="#">Контакты</a></li>
+          <li><a href="#">Вакансии</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Контакты</h3>
+        <ul class="footer-links">
+          <li><i class="fas fa-phone"></i> 8 (800) 555-35-35</li>
+          <li><i class="fas fa-envelope"></i> support@shopverse.ru</li>
+          <li><i class="fas fa-map-marker-alt"></i> Витебск, ул. Маркетплейсная, 1</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="copyright">
+      &copy; 2023 ShopVerse. Все права защищены.
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Переключение видимости пароля
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+
+    function togglePasswordVisibility(input, icon) {
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    if (togglePassword) {
+      togglePassword.addEventListener('click', function() {
+        togglePasswordVisibility(passwordInput, this);
+      });
+    }
+
+    if (toggleConfirmPassword) {
+      toggleConfirmPassword.addEventListener('click', function() {
+        togglePasswordVisibility(confirmPasswordInput, this);
+      });
+    }
+
+    // Валидация формы
+    const registrationForm = document.getElementById('registration-form');
+
+    if (registrationForm) {
+      registrationForm.addEventListener('submit', function(e) {
+        // Проверка совпадения паролей
+        if (passwordInput.value !== confirmPasswordInput.value) {
+          e.preventDefault();
+          alert('Пароли не совпадают!');
+          return;
+        }
+
+        // Проверка длины пароля
+        if (passwordInput.value.length < 6) {
+          e.preventDefault();
+          alert('Пароль должен содержать не менее 6 символов!');
+          return;
+        }
+
+        // Проверка принятия условий
+        const termsCheckbox = document.getElementById('terms');
+        if (!termsCheckbox.checked) {
+          e.preventDefault();
+          alert('Пожалуйста, примите условия использования!');
+          return;
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>
