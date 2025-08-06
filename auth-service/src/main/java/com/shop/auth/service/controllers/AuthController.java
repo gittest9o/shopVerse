@@ -1,9 +1,9 @@
-package example.auth_service.controllers;
+package com.shop.auth.service.controllers;
 
-import example.auth_service.data.DataClasses.LoginDto;
-import example.auth_service.data.DataClasses.UserDTO;
-import example.auth_service.JwtUtil;
-import example.auth_service.data.UserService;
+import com.shop.auth.service.data.DataClasses.LoginDto;
+import com.shop.auth.service.data.DataClasses.UserDTO;
+import com.shop.auth.service.JwtUtil;
+import com.shop.auth.service.data.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public String loginUser(
-            @ModelAttribute("loginData")  LoginDto loginData,
+            @ModelAttribute("loginData") LoginDto loginData,
             BindingResult bindingResult,
             HttpServletResponse response,
             Model model) {

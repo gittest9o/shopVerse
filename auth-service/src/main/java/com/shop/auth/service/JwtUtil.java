@@ -1,10 +1,12 @@
-package example.auth_service;
+package com.shop.auth.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import io.jsonwebtoken.Claims;
 
@@ -16,10 +18,11 @@ public class JwtUtil {
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     public static String generateToken(Long userId, String email) {
+        ZonedDateTime utcZoned = ZonedDateTime.now(ZoneId.of("UTC"));
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
-                .setIssuedAt(new Date())
+                .setIssuedAt(utcZoned)//TODO
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();

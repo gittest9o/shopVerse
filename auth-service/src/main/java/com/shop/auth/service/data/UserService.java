@@ -1,7 +1,7 @@
-package example.auth_service.data;
+package com.shop.auth.service.data;
 
-import example.auth_service.UserClient;
-import example.auth_service.data.DataClasses.UserDTO;
+import com.shop.auth.service.UserClient;
+import com.shop.auth.service.data.DataClasses.UserDTO;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -1,7 +1,7 @@
-package example.auth_service.controllers;
+package com.shop.auth.service.controllers;
 
-import example.auth_service.data.DataClasses.UserDTO;
-import example.auth_service.data.UserService;
+import com.shop.auth.service.data.DataClasses.UserDTO;
+import com.shop.auth.service.data.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
