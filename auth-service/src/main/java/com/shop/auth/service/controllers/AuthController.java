@@ -7,75 +7,54 @@ import com.shop.auth.service.data.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseCookie;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 
+@RestController
 @RequiredArgsConstructor
-@Controller
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final UserService userService;
 
-
-    @GetMapping("/login")
-    public String showLoginForm(Model model) {
-        model.addAttribute("loginData", new LoginDto());
-        return "login";
-    }
-
     @PostMapping("/login")
-    public String loginUser(
-            @ModelAttribute("loginData") LoginDto loginData,
-            BindingResult bindingResult,
-            HttpServletResponse response,
-            Model model) {
-
-        if (bindingResult.hasErrors()) {
-            return "login";
-        }
+    public ResponseEntity<?> loginUser(
+            @RequestBody LoginDto loginData,
+            HttpServletResponse response) {
 
         try {
             UserDTO userDTO = userService.authenticate(loginData.getEmail(), loginData.getPassword());
             String token = JwtUtil.generateToken(userDTO.getId(), userDTO.getEmail());
 
-
             Cookie jwtCookie = new Cookie("jwt", token);
             jwtCookie.setHttpOnly(true);
             jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(24 * 60 * 60); // 1 день
+            jwtCookie.setMaxAge(24 * 60 * 60);
             response.addCookie(jwtCookie);
 
-            return "redirect:http://localhost:8080/products";
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("message", "Login successful");
+            responseBody.put("user", userDTO);
+
+            return ResponseEntity.ok(responseBody);
 
         } catch (RuntimeException e) {
-            model.addAttribute("error", e.getMessage());
-            return "login";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        Cookie jwtCookie = new Cookie("jwt", "");
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(0);
+        jwtCookie.setHttpOnly(true);
+        response.addCookie(jwtCookie);
 
-    @GetMapping("/logout")
-    public String logout(HttpServletResponse response) {
-
-        ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                .path("/")
-                .maxAge(0)
-                .httpOnly(true)
-                .build();
-
-        response.addHeader("Set-Cookie", cookie.toString());
-
-
-        return "redirect:http://localhost:8080/products";
+        return ResponseEntity.ok().build();
     }
-
 }

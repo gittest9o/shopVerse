@@ -13,7 +13,6 @@ import io.jsonwebtoken.Claims;
 public class JwtUtil {
 
     private static final String SECRET = "LZy72p8GDNBu9qxWAKfXfEF9U6qUQXt3";
-    private static final long EXPIRATION_TIME = 86400000;
 
     private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
 
@@ -22,8 +21,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
-                .setIssuedAt(utcZoned)//TODO
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setIssuedAt(Date.from(utcZoned.toInstant()))
+                .setExpiration(Date.from(utcZoned.plusDays(1).toInstant()))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
