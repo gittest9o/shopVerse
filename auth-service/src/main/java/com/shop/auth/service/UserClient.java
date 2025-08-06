@@ -14,5 +14,5 @@ public interface UserClient {
     void createUser(@RequestBody UserDTO userDto);
 
     @GetMapping("/user/api/email/{email}")
-    UserDTO getUserByEmail(@PathVariable String email);
+    UserDTO getUserByEmail(@PathVariable("email") String email);
 }
