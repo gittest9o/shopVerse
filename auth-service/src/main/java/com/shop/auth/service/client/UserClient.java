@@ -1,4 +1,4 @@
-package com.shop.auth.service;
+package com.shop.auth.service.client;
 
 import com.shop.auth.service.data.DataClasses.UserDTO;
 import org.springframework.cloud.openfeign.FeignClient;

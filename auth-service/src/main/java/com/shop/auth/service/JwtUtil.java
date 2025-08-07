@@ -9,18 +9,27 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import io.jsonwebtoken.Claims;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+
+@Component
 public class JwtUtil {
 
-    private static final String SECRET = "LZy72p8GDNBu9qxWAKfXfEF9U6qUQXt3";
+    private static SecretKey SECRET_KEY;
+    private static final String USERID = "userId";
 
-    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
+    @Value("${jwt.secret}")
+    public void setSecret(String secret) {
+        SECRET_KEY = Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
 
     public static String generateToken(Long userId, String email) {
         ZonedDateTime utcZoned = ZonedDateTime.now(ZoneId.of("UTC"));
         return Jwts.builder()
                 .setSubject(email)
-                .claim("userId", userId)
+                .claim(USERID, userId)
                 .setIssuedAt(Date.from(utcZoned.toInstant()))
                 .setExpiration(Date.from(utcZoned.plusDays(1).toInstant()))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)

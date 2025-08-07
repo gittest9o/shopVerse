@@ -1,6 +1,6 @@
 package com.shop.auth.service.data;
 
-import com.shop.auth.service.UserClient;
+import com.shop.auth.service.client.UserClient;
 import com.shop.auth.service.data.DataClasses.UserDTO;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -45,13 +45,11 @@ public class UserService {
         if(isUserExists(email)) {
             UserDTO userDTO = userClient.getUserByEmail(email);
             if (!passwordEncoder.matches(rawPassword, userDTO.getPassword())) {
-                throw new RuntimeException("Неверный пароль");
+                return null;
             }
-
             return userDTO;
-
         }else {
-            throw new RuntimeException("Пользователь не найден");
+           return null;
         }
 
     }

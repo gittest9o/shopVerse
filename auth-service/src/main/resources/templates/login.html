@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -384,7 +384,7 @@
 <header>
     <div class="container">
         <div class="flex" style="padding: 15px 0;">
-            <a href="/" class="logo">
+            <a th:href="@{/}" class="logo">
                 <i class="fas fa-globe-americas"></i>
                 ShopVerse
             </a>
@@ -399,19 +399,19 @@
             <h1 class="login-title">Вход в аккаунт</h1>
             <p class="login-subtitle">С возвращением! Продолжайте покупки с ShopVerse</p>
 
-            <!-- Контейнер для ошибок -->
-            <div id="error-container" class="alert-danger" style="display: none;">
+            <!-- Общее сообщение об ошибке -->
+            <div class="alert-danger" th:if="${error != null}">
                 <i class="fas fa-exclamation-circle"></i>
-                <span id="error-message"></span>
+                <span th:text="${error}">Ошибка входа</span>
             </div>
 
-            <form id="login-form">
+            <form id="login-form" th:action="@{/auth/login}" method="post">
                 <div class="form-group">
                     <label class="form-label" for="email">Email</label>
                     <div class="input-with-icon">
                         <i class="fas fa-envelope input-icon"></i>
                         <input type="email" id="email" class="form-input"
-                               placeholder="example@mail.com" required>
+                               name="email" placeholder="example@mail.com" required>
                     </div>
                 </div>
 
@@ -420,14 +420,14 @@
                     <div class="input-with-icon">
                         <i class="fas fa-lock input-icon"></i>
                         <input type="password" id="password" class="form-input"
-                               placeholder="Введите пароль" required>
+                               name="password" placeholder="Введите пароль" required>
                         <i class="fas fa-eye password-toggle" id="togglePassword"></i>
                     </div>
                 </div>
 
                 <div class="remember-forgot">
                     <div class="remember-me">
-                        <input type="checkbox" id="remember" class="remember-checkbox">
+                        <input type="checkbox" id="remember" class="remember-checkbox" name="remember-me">
                         <label for="remember">Запомнить меня</label>
                     </div>
                     <a href="#" class="forgot-password">Забыли пароль?</a>
@@ -438,32 +438,66 @@
                 </button>
 
                 <p class="register-link">
-                    Ещё нет аккаунта? <a href="/register">Зарегистрироваться</a>
+                    Ещё нет аккаунта? <a th:href="@{/auth/register}">Зарегистрироваться</a>
                 </p>
             </form>
         </div>
 
         <div class="benefits">
-            <!-- Блок преимуществ (остается без изменений) -->
+            <div class="benefit-card">
+                <i class="fas fa-truck"></i>
+                <h3 class="benefit-title">Быстрая доставка</h3>
+                <p>Получите заказ в течение 1-3 дней</p>
+            </div>
+            <div class="benefit-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3 class="benefit-title">Безопасность</h3>
+                <p>Ваши данные надёжно защищены</p>
+            </div>
+            <div class="benefit-card">
+                <i class="fas fa-percent"></i>
+                <h3 class="benefit-title">Эксклюзивные скидки</h3>
+                <p>Специальные предложения для участников</p>
+            </div>
         </div>
     </div>
 </section>
 
 <!-- Footer -->
 <footer>
-    <!-- Подвал (остается без изменений) -->
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <h3>ShopVerse</h3>
+                <ul class="footer-links">
+                    <li><a href="#">О компании</a></li>
+                    <li><a href="#">Контакты</a></li>
+                    <li><a href="#">Вакансии</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Контакты</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-phone"></i> 8 (800) 555-35-35</li>
+                    <li><i class="fas fa-envelope"></i> support@shopverse.ru</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Витебск, ул. Маркетплейсная, 1</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            &copy; 2023 ShopVerse. Все права защищены.
+        </div>
+    </div>
 </footer>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const togglePassword = document.getElementById('togglePassword');
-        const loginForm = document.getElementById('login-form');
-        const errorContainer = document.getElementById('error-container');
-        const errorMessage = document.getElementById('error-message');
-
         // Переключение видимости пароля
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
         function togglePasswordVisibility(input, icon) {
             if (input.type === 'password') {
                 input.type = 'text';
@@ -482,48 +516,21 @@
             });
         }
 
-        // Обработка входа
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Обработка отправки формы
+        const loginForm = document.getElementById('login-form');
 
-            const email = emailInput.value;
-            const password = passwordInput.value;
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                // Простая валидация
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
 
-            // Скрыть предыдущие ошибки
-            errorContainer.style.display = 'none';
-
-            try {
-                const response = await fetch('http://localhost:8080/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    }),
-                    credentials: 'include' // Для работы с куками
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Успешный вход
-                    window.location.href = 'http://localhost:8080/products';
-                } else {
-                    // Показать ошибку
-                    showError(data.error || 'Ошибка аутентификации');
+                if (!email || !password) {
+                    e.preventDefault();
+                    alert('Пожалуйста, заполните все поля!');
+                    return;
                 }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                showError('Сетевая ошибка. Попробуйте позже');
-            }
-        });
-
-        // Функция показа ошибок
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorContainer.style.display = 'block';
+            });
         }
     });
 </script>

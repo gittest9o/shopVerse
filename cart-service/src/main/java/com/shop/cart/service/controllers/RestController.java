@@ -17,7 +17,7 @@ public class RestController {
     @PostMapping("/add/{productId}")
     public ResponseEntity<String> addToCart(
             @RequestHeader("X-User-Id") Long userId,
-            @PathVariable String productId
+            @PathVariable("productId") String productId
     ) {
         cartService.addToCart(userId, productId, 1);
         return ResponseEntity.ok("Товар добавлен в корзину");
@@ -26,7 +26,7 @@ public class RestController {
     @PostMapping("/update/{productId}")
     public ResponseEntity<String> updateCartItem(
             @RequestHeader("X-User-Id") Long userId,
-            @PathVariable String productId,
+            @PathVariable("productId") String productId,
             @RequestParam int quantity
     ) {
         cartService.updateQuantity(userId, productId, quantity);
@@ -36,7 +36,7 @@ public class RestController {
     @PostMapping("/remove/{productId}")
     public ResponseEntity<String> removeCartItem(
             @RequestHeader("X-User-Id") Long userId,
-            @PathVariable String productId
+            @PathVariable("productId") String productId
     ) {
         cartService.removeFromCart(userId, productId);
         return ResponseEntity.ok("Товар удален из корзины");

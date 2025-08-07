@@ -18,7 +18,7 @@ public class RestController {
     private final OrderRepository orderRepository;
 
     @GetMapping("/{userId}")
-    public List<Order> findAll(@PathVariable Long userId) {
+    public List<Order> findAll(@PathVariable("userId") Long userId) {
         return orderRepository.findByUserId(userId);
 
     }

@@ -1,6 +1,6 @@
-package example.user_service.repo;
+package com.shop.user.service.repo;
 
-import example.user_service.entity.User;
+import com.shop.user.service.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

@@ -1,10 +1,10 @@
-package example.user_service.controllers;
+package com.shop.user.service.controllers;
 
 
-import example.user_service.client.order.OrderClient;
-import example.user_service.client.order.OrderDto;
-import example.user_service.entity.User;
-import example.user_service.repo.UserRepository;
+import com.shop.user.service.client.order.OrderClient;
+import com.shop.user.service.client.order.OrderDto;
+import com.shop.user.service.entity.User;
+import com.shop.user.service.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
