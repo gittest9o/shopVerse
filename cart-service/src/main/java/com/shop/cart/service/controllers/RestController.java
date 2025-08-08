@@ -27,7 +27,7 @@ public class RestController {
     public ResponseEntity<String> updateCartItem(
             @RequestHeader("X-User-Id") Long userId,
             @PathVariable("productId") String productId,
-            @RequestParam int quantity
+            @RequestParam("quantity")  int quantity
     ) {
         cartService.updateQuantity(userId, productId, quantity);
         return ResponseEntity.ok("Количество обновлено");
@@ -54,4 +54,3 @@ public class RestController {
     }
 
 }
-

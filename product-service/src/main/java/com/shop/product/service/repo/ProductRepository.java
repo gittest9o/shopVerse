@@ -1,5 +1,6 @@
-package com.shop.product.service.data;
+package com.shop.product.service.repo;
 
+import com.shop.product.service.product.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

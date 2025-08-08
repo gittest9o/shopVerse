@@ -1,7 +1,7 @@
 package com.shop.product.service.controllers;
 
-import com.shop.product.service.data.Product;
-import com.shop.product.service.data.ProductService;
+import com.shop.product.service.product.Product;
+import com.shop.product.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

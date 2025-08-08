@@ -11,7 +11,6 @@ public class KafkaProducerService {
 
     private final KafkaTemplate<String, Notification> kafkaTemplate;
 
-
     public void sendNotification(Notification notification) {
         kafkaTemplate.send("order-topic", notification);
     }
