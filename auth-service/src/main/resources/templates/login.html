@@ -376,6 +376,19 @@
             border-radius: 8px;
             margin-bottom: 20px;
             border: 1px solid #f5c2c7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -384,7 +397,7 @@
 <header>
     <div class="container">
         <div class="flex" style="padding: 15px 0;">
-            <a th:href="@{/}" class="logo">
+            <a href="/" class="logo">
                 <i class="fas fa-globe-americas"></i>
                 ShopVerse
             </a>
@@ -399,13 +412,13 @@
             <h1 class="login-title">Вход в аккаунт</h1>
             <p class="login-subtitle">С возвращением! Продолжайте покупки с ShopVerse</p>
 
-            <!-- Общее сообщение об ошибке -->
-            <div class="alert-danger" th:if="${error != null}">
+            <!-- Блок для отображения ошибок -->
+            <div id="error-message" class="alert-danger" style="display: none;">
                 <i class="fas fa-exclamation-circle"></i>
-                <span th:text="${error}">Ошибка входа</span>
+                <span id="error-text"></span>
             </div>
 
-            <form id="login-form" th:action="@{/auth/login}" method="post">
+            <form id="login-form">
                 <div class="form-group">
                     <label class="form-label" for="email">Email</label>
                     <div class="input-with-icon">
@@ -433,12 +446,12 @@
                     <a href="#" class="forgot-password">Забыли пароль?</a>
                 </div>
 
-                <button type="submit" class="login-btn">
+                <button type="submit" class="login-btn" id="submit-btn">
                     <i class="fas fa-sign-in-alt"></i> Войти
                 </button>
 
                 <p class="register-link">
-                    Ещё нет аккаунта? <a th:href="@{/auth/register}">Зарегистрироваться</a>
+                    Ещё нет аккаунта? <a href="/auth/register">Зарегистрироваться</a>
                 </p>
             </form>
         </div>
@@ -494,43 +507,109 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Переключение видимости пароля
-        const togglePassword = document.getElementById('togglePassword');
+        // Элементы DOM
+        const loginForm = document.getElementById('login-form');
+        const errorBlock = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const submitBtn = document.getElementById('submit-btn');
+        const passwordToggle = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
 
-        function togglePasswordVisibility(input, icon) {
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        if (togglePassword) {
-            togglePassword.addEventListener('click', function() {
-                togglePasswordVisibility(passwordInput, this);
+        // Переключение видимости пароля
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', function() {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    this.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    this.classList.replace('fa-eye-slash', 'fa-eye');
+                }
             });
         }
 
         // Обработка отправки формы
-        const loginForm = document.getElementById('login-form');
-
         if (loginForm) {
-            loginForm.addEventListener('submit', function(e) {
-                // Простая валидация
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
 
+                // Скрываем предыдущие ошибки
+                hideError();
+
+                // Получаем данные формы
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value.trim();
+                const rememberMe = document.getElementById('remember').checked;
+
+                // Валидация
                 if (!email || !password) {
-                    e.preventDefault();
-                    alert('Пожалуйста, заполните все поля!');
+                    showError('Пожалуйста, заполните все поля!');
                     return;
                 }
+
+                // Проверка формата email
+                if (!validateEmail(email)) {
+                    showError('Пожалуйста, введите корректный email');
+                    return;
+                }
+
+                // Блокировка кнопки во время запроса
+                disableSubmitButton(true);
+
+                try {
+                    // Отправка запроса на сервер
+                    const response = await fetch('/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    });
+
+                    if (response.ok) {
+                        // Успешный логин - редирект на главную
+                        window.location.href = 'http://localhost:8080';
+                    } else {
+                        // Обработка ошибок сервера
+                        const errorData = await response.text();
+                        showError(errorData || 'Неизвестная ошибка сервера');
+                    }
+                } catch (error) {
+                    // Обработка сетевых ошибок
+                    showError('Ошибка сети. Проверьте подключение к интернету');
+                } finally {
+                    // Разблокировка кнопки
+                    disableSubmitButton(false);
+                }
             });
+        }
+
+        // Функции для работы с UI
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorBlock.style.display = 'flex';
+        }
+
+        function hideError() {
+            errorBlock.style.display = 'none';
+        }
+
+        function disableSubmitButton(disabled) {
+            submitBtn.disabled = disabled;
+            if (disabled) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Вход...';
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Войти';
+            }
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
         }
     });
 </script>
