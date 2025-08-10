@@ -2,8 +2,8 @@ package com.shop.product.service;
 
 
 
-import com.shop.product.service.product.Product;
-import com.shop.product.service.product.ProductService;
+import com.shop.product.service.product.entity.Product;
+import com.shop.product.service.product.service.ProductService;
 import com.shop.product.service.repo.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

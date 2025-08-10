@@ -5,7 +5,7 @@ import com.shop.order.service.services.KafkaProducerService;
 import com.shop.order.service.services.OrderService;
 import com.shop.order.service.data.clients.CartClient;
 import com.shop.order.service.data.clients.UserClient;
-import com.shop.order.service.data.dataClases.Order;
+import com.shop.order.service.data.dataClases.entity.Order;
 import com.shop.order.service.data.dataClases.OrderInfo;
 import com.shop.order.service.data.dataClases.UserDto;
 import lombok.RequiredArgsConstructor;

@@ -20,4 +20,5 @@ eureka:
 
 jwt:
   secret: LZy72p8GDNBu9qxWAKfXfEF9U6qUQXt3
+  expiration-period: PT24H
 

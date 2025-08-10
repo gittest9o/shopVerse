@@ -1,7 +1,7 @@
 package com.shop.order.service;
 
 import com.shop.order.service.data.OrderRepository;
-import com.shop.order.service.data.dataClases.Order;
+import com.shop.order.service.data.dataClases.entity.Order;
 import com.shop.order.service.services.OrderService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +9,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

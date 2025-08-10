@@ -1,4 +1,4 @@
-package com.shop.order.service.data.dataClases;
+package com.shop.order.service.data.dataClases.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

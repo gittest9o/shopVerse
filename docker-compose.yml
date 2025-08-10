@@ -1,0 +1,228 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    image: eureka-server:latest
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - shop-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root1}
+      MYSQL_DATABASE: shop
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    networks:
+      - shop-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - shop-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "29092:29092"
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "kafka:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - shop-network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - shop-network
+
+  auth-service:
+    image: auth-service:latest
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    environment:
+      ACTIVE_PROFILE: ${ACTIVE_PROFILE:-}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      EUREKA_SERVER: eureka-server
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8082:8082"
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - shop-network
+
+  order-service:
+    image: order-service:latest
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    environment:
+      ACTIVE_PROFILE: ${ACTIVE_PROFILE:-}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: mysql
+      EUREKA_SERVER: eureka-server
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8084:8084"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+  cart-service:
+    image: cart-service:latest
+    build:
+      context: ./cart-service
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATA_REDIS_HOST: redis
+      EUREKA_SERVER: eureka-server
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    ports:
+      - "8083:8083"
+    depends_on:
+      redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shop-network
+
+  gateway-service:
+    image: gateway-service:latest
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    environment:
+      EUREKA_SERVER: eureka-server
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+      - auth-service
+      - product-service
+      - cart-service
+      - order-service
+      - user-service
+    networks:
+      - shop-network
+
+  product-service:
+    image: product-service:latest
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    environment:
+      ACTIVE_PROFILE: ${ACTIVE_PROFILE:-}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: mysql
+      EUREKA_SERVER: eureka-server
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shop-network
+
+  user-service:
+    image: user-service:latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    environment:
+      ACTIVE_PROFILE: ${ACTIVE_PROFILE:-}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: mysql
+      EUREKA_SERVER: eureka-server
+    ports:
+      - "8085:8085"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shop-network
+
+  notification-service:
+    image: notification-service:latest
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    environment:
+      SPRING_MAIL_USERNAME: ${SMTP_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SMTP_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8086:8086"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+networks:
+  shop-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:

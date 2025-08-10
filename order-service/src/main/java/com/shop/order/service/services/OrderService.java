@@ -1,7 +1,7 @@
 package com.shop.order.service.services;
 
 import com.shop.order.service.data.OrderRepository;
-import com.shop.order.service.data.dataClases.Order;
+import com.shop.order.service.data.dataClases.entity.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

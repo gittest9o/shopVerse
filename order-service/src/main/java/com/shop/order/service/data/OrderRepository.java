@@ -1,6 +1,6 @@
 package com.shop.order.service.data;
 
-import com.shop.order.service.data.dataClases.Order;
+import com.shop.order.service.data.dataClases.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
