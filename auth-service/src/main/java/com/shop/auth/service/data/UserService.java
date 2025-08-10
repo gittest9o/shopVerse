@@ -4,9 +4,10 @@ import com.shop.auth.service.client.UserClient;
 import com.shop.auth.service.data.DataClasses.UserDTO;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class UserService {
     public void register(UserDTO registrationDto) {
         try {
             userClient.getUserByEmail(registrationDto.getEmail());
-            throw new DataIntegrityViolationException("Пользователь с таким email уже существует");
+            throw new RuntimeException("Пользователь с таким email уже существует");
         } catch (FeignException.NotFound e) {
 
             UserDTO userDTO = new UserDTO();
@@ -41,15 +42,15 @@ public class UserService {
         }
     }
 
-    public UserDTO authenticate(String email, String rawPassword) {
+    public Optional<UserDTO> authenticate(String email, String rawPassword) {
         if(isUserExists(email)) {
             UserDTO userDTO = userClient.getUserByEmail(email);
             if (!passwordEncoder.matches(rawPassword, userDTO.getPassword())) {
-                return null;
+                return Optional.empty();
             }
-            return userDTO;
+            return Optional.of(userDTO);
         }else {
-           return null;
+           return Optional.empty();
         }
 
     }

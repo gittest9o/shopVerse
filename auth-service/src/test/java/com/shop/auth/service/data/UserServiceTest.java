@@ -3,15 +3,15 @@ package com.shop.auth.service.data;
 import com.shop.auth.service.client.UserClient;
 import com.shop.auth.service.data.DataClasses.UserDTO;
 import feign.FeignException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -25,7 +25,6 @@ public class UserServiceTest {
     private PasswordEncoder passwordEncoder;
     @InjectMocks
     private UserService userService;
-
 
     @Test
     void isUserExists_shouldReturnTrue_whenUserFound() {
@@ -52,7 +51,7 @@ public class UserServiceTest {
 
         when(userClient.getUserByEmail(dto.getEmail())).thenReturn(new UserDTO());
 
-        assertThrows(DataIntegrityViolationException.class, () -> userService.register(dto));
+        assertThrows(RuntimeException.class, () -> userService.register(dto));
     }
 
     @Test
@@ -88,14 +87,14 @@ public class UserServiceTest {
         when(userClient.getUserByEmail(email)).thenReturn(dto);
         when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
 
-        UserDTO result = userService.authenticate(email, rawPassword);
+        Optional<UserDTO> result = userService.authenticate(email, rawPassword);
 
-        assertNotNull(result);
-        assertEquals(email, result.getEmail());
+        assertTrue(result.isPresent());
+        assertEquals(email, result.get().getEmail());
     }
 
     @Test
-    void authenticate_shouldReturnNull_whenPasswordInvalid() {
+    void authenticate_shouldReturnEmpty_whenPasswordInvalid() {
         String email = "user@example.com";
         String rawPassword = "wrongPassword";
 
@@ -106,20 +105,20 @@ public class UserServiceTest {
         when(userClient.getUserByEmail(email)).thenReturn(dto);
         when(passwordEncoder.matches(rawPassword, "encodedPassword")).thenReturn(false);
 
-        UserDTO result = userService.authenticate(email, rawPassword);
+        Optional<UserDTO> result = userService.authenticate(email, rawPassword);
 
-        assertNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void authenticate_shouldReturnNull_whenUserDoesNotExist() {
+    void authenticate_shouldReturnEmpty_whenUserDoesNotExist() {
         String email = "nonexistent@example.com";
         String rawPassword = "any";
 
         when(userClient.getUserByEmail(email)).thenThrow(FeignException.NotFound.class);
 
-        UserDTO result = userService.authenticate(email, rawPassword);
+        Optional<UserDTO> result = userService.authenticate(email, rawPassword);
 
-        assertNull(result);
+        assertTrue(result.isEmpty());
     }
 }

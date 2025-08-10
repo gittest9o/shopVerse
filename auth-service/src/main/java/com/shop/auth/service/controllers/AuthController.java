@@ -5,13 +5,14 @@ import com.shop.auth.service.data.DataClasses.UserDTO;
 import com.shop.auth.service.JwtUtil;
 import com.shop.auth.service.data.UserService;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,9 +28,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDto loginData, HttpServletResponse response) {
-        UserDTO userDTO = userService.authenticate(loginData.getEmail(), loginData.getPassword());
+        Optional<UserDTO> optionalUserDTO = userService.authenticate(loginData.getEmail(), loginData.getPassword());
 
-        if(userDTO != null){
+        if(optionalUserDTO.isPresent()) {
+            UserDTO userDTO = optionalUserDTO.get();
             String token = JwtUtil.generateToken(userDTO.getId(), userDTO.getEmail());
 
             Cookie jwtCookie = new Cookie("jwt", token);
@@ -38,7 +40,9 @@ public class AuthController {
             jwtCookie.setMaxAge(24 * 60 * 60); // 1 день
             response.addCookie(jwtCookie);
 
-            return ResponseEntity.ok().body("Login successful");
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + token)
+                    .body("Login successful");
 
         } else {
             return ResponseEntity.status(401).body("Invalid email or password");
