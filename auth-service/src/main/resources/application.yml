@@ -3,22 +3,22 @@ server:
 
 spring:
   application:
-    name: auth-service
+    name: ${SPRING_APPLICATION_NAME:auth-service}
   profiles:
-    active: local
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
   thymeleaf:
-    prefix: classpath:/templates/
-    suffix: .html
-    enabled: true
-    cache: false
+    prefix: ${THYMELEAF_PREFIX:classpath:/templates/}
+    suffix: ${THYMELEAF_SUFFIX:.html}
+    enabled: ${THYMELEAF_ENABLED:true}
+    cache: ${THYMELEAF_CACHE:false}
 
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
-    register-with-eureka: true
-    fetch-registry: true
+    register-with-eureka: ${EUREKA_REGISTER_WITH_EUREKA:true}
+    fetch-registry: ${EUREKA_FETCH_REGISTRY:true}
 
 jwt:
   secret: ${JWT_SECRET}
