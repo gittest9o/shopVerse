@@ -370,6 +370,19 @@
       border-radius: 8px;
       margin-bottom: 20px;
       border: 1px solid #f5c2c7;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -382,7 +395,6 @@
         <i class="fas fa-globe-americas"></i>
         ShopVerse
       </a>
-
     </div>
   </div>
 </header>
@@ -395,32 +407,30 @@
       <p class="registration-subtitle">Присоединяйтесь к миллионам покупателей на ShopVerse</p>
 
       <!-- Общее сообщение об ошибке -->
-      <div class="alert-danger" th:if="${emailError != null}">
+      <div id="emailErrorBlock" class="alert-danger" style="display: none;">
         <i class="fas fa-exclamation-circle"></i>
-        <span th:text="${emailError}">Ошибка с email</span>
+        <span id="emailErrorText"></span>
       </div>
 
-      <form id="registration-form" th:action="@{/auth/register}" th:object="${userDTO}" method="post">
+      <form id="registration-form">
         <div class="form-group">
           <label class="form-label" for="firstName">Имя</label>
           <div class="input-with-icon">
-            <i class="fas fa-userDTO input-icon"></i>
+            <i class="fas fa-user input-icon"></i>
             <input type="text" id="firstName" class="form-input"
-                   th:field="*{firstName}" placeholder="Введите ваше имя" required>
+                   name="firstName" placeholder="Введите ваше имя" required>
           </div>
-          <span class="error-message" th:if="${#fields.hasErrors('firstName')}"
-                th:errors="*{firstName}"></span>
+          <span id="firstNameError" class="error-message"></span>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="lastName">Фамилия</label>
           <div class="input-with-icon">
-            <i class="fas fa-userDTO-tag input-icon"></i>
+            <i class="fas fa-user-tag input-icon"></i>
             <input type="text" id="lastName" class="form-input"
-                   th:field="*{lastName}" placeholder="Введите вашу фамилию" required>
+                   name="lastName" placeholder="Введите вашу фамилию" required>
           </div>
-          <span class="error-message" th:if="${#fields.hasErrors('lastName')}"
-                th:errors="*{lastName}"></span>
+          <span id="lastNameError" class="error-message"></span>
         </div>
 
         <div class="form-group">
@@ -428,10 +438,9 @@
           <div class="input-with-icon">
             <i class="fas fa-envelope input-icon"></i>
             <input type="email" id="email" class="form-input"
-                   th:field="*{email}" placeholder="example@mail.com" required>
+                   name="email" placeholder="example@mail.com" required>
           </div>
-          <span class="error-message" th:if="${#fields.hasErrors('email')}"
-                th:errors="*{email}"></span>
+          <span id="emailError" class="error-message"></span>
         </div>
 
         <div class="form-group">
@@ -439,11 +448,10 @@
           <div class="input-with-icon">
             <i class="fas fa-lock input-icon"></i>
             <input type="password" id="password" class="form-input"
-                   th:field="*{password}" placeholder="Создайте пароль" required>
+                   name="password" placeholder="Создайте пароль" required>
             <i class="fas fa-eye password-toggle" id="togglePassword"></i>
           </div>
-          <span class="error-message" th:if="${#fields.hasErrors('password')}"
-                th:errors="*{password}"></span>
+          <span id="passwordError" class="error-message"></span>
         </div>
 
         <div class="form-group">
@@ -454,8 +462,7 @@
                    name="confirmPassword" placeholder="Повторите пароль" required>
             <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
           </div>
-          <span class="error-message" th:if="${passwordError != null}"
-                th:text="${passwordError}"></span>
+          <span id="confirmPasswordError" class="error-message"></span>
         </div>
 
         <div class="terms-container">
@@ -465,8 +472,8 @@
           </label>
         </div>
 
-        <button type="submit" class="register-btn">
-          <i class="fas fa-userDTO-plus"></i> Зарегистрироваться
+        <button type="submit" class="register-btn" id="submit-btn">
+          <i class="fas fa-user-plus"></i> Зарегистрироваться
         </button>
 
         <p class="login-link">
@@ -526,12 +533,59 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Переключение видимости пароля
+    // Элементы DOM
+    const registrationForm = document.getElementById('registration-form');
+    const emailErrorBlock = document.getElementById('emailErrorBlock');
+    const emailErrorText = document.getElementById('emailErrorText');
+    const submitBtn = document.getElementById('submit-btn');
     const togglePassword = document.getElementById('togglePassword');
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
 
+    // Элементы для отображения ошибок
+    const firstNameError = document.getElementById('firstNameError');
+    const lastNameError = document.getElementById('lastNameError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+    // Функции для работы с UI
+    function showError(element, message) {
+      element.textContent = message;
+      element.style.display = 'block';
+    }
+
+    function hideError(element) {
+      element.textContent = '';
+      element.style.display = 'none';
+    }
+
+    function showEmailError(message) {
+      emailErrorText.textContent = message;
+      emailErrorBlock.style.display = 'flex';
+    }
+
+    function hideEmailError() {
+      emailErrorText.textContent = '';
+      emailErrorBlock.style.display = 'none';
+    }
+
+    function disableSubmitButton(disabled) {
+      submitBtn.disabled = disabled;
+      if (disabled) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Регистрация...';
+      } else {
+        submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Зарегистрироваться';
+      }
+    }
+
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    // Переключение видимости пароля
     function togglePasswordVisibility(input, icon) {
       if (input.type === 'password') {
         input.type = 'text';
@@ -556,31 +610,111 @@
       });
     }
 
-    // Валидация формы
-    const registrationForm = document.getElementById('registration-form');
-
+    // Обработка отправки формы
     if (registrationForm) {
-      registrationForm.addEventListener('submit', function(e) {
-        // Проверка совпадения паролей
-        if (passwordInput.value !== confirmPasswordInput.value) {
-          e.preventDefault();
-          alert('Пароли не совпадают!');
-          return;
+      registrationForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Скрываем предыдущие ошибки
+        hideEmailError();
+        hideError(firstNameError);
+        hideError(lastNameError);
+        hideError(emailError);
+        hideError(passwordError);
+        hideError(confirmPasswordError);
+
+        // Получаем данные формы
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName = document.getElementById('lastName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        const termsAccepted = document.getElementById('terms').checked;
+
+        // Валидация
+        let isValid = true;
+
+        if (!firstName) {
+          showError(firstNameError, 'Пожалуйста, введите имя');
+          isValid = false;
         }
 
-        // Проверка длины пароля
-        if (passwordInput.value.length < 6) {
-          e.preventDefault();
-          alert('Пароль должен содержать не менее 6 символов!');
-          return;
+        if (!lastName) {
+          showError(lastNameError, 'Пожалуйста, введите фамилию');
+          isValid = false;
         }
 
-        // Проверка принятия условий
-        const termsCheckbox = document.getElementById('terms');
-        if (!termsCheckbox.checked) {
-          e.preventDefault();
+        if (!email) {
+          showError(emailError, 'Пожалуйста, введите email');
+          isValid = false;
+        } else if (!validateEmail(email)) {
+          showError(emailError, 'Пожалуйста, введите корректный email');
+          isValid = false;
+        }
+
+        if (!password) {
+          showError(passwordError, 'Пожалуйста, введите пароль');
+          isValid = false;
+        } else if (password.length < 6) {
+          showError(passwordError, 'Пароль должен содержать не менее 6 символов');
+          isValid = false;
+        }
+
+        if (!confirmPassword) {
+          showError(confirmPasswordError, 'Пожалуйста, подтвердите пароль');
+          isValid = false;
+        } else if (password !== confirmPassword) {
+          showError(confirmPasswordError, 'Пароли не совпадают');
+          isValid = false;
+        }
+
+        if (!termsAccepted) {
           alert('Пожалуйста, примите условия использования!');
-          return;
+          isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Блокировка кнопки во время запроса
+        disableSubmitButton(true);
+
+        try {
+          // Отправка запроса на сервер
+          const response = await fetch('/auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              firstName: firstName,
+              lastName: lastName,
+              email: email,
+              password: password,
+              confirmPassword: confirmPassword
+            })
+          });
+
+          if (response.status === 201) {
+            // Успешная регистрация
+            window.location.href = '/auth/login?registered';
+          } else {
+            // Обработка ошибок сервера
+            const errorData = await response.text();
+
+            if (response.status === 400) {
+              showError(confirmPasswordError, errorData);
+            } else if (response.status === 409) {
+              showEmailError(errorData);
+            } else {
+              showEmailError('Неизвестная ошибка сервера');
+            }
+          }
+        } catch (error) {
+          // Обработка сетевых ошибок
+          showEmailError('Ошибка сети. Проверьте подключение к интернету');
+        } finally {
+          // Разблокировка кнопки
+          disableSubmitButton(false);
         }
       });
     }

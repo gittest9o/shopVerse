@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8086
 
 spring:
   mail:
@@ -18,8 +18,9 @@ spring:
 
   kafka:
     consumer:
-      bootstrap-servers: localhost:9092
-      group-id: notification-group
+      group-id: notification-group-replay-1
+      auto-offset-reset: earliest
+      bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:

@@ -4,40 +4,52 @@ server:
 spring:
   application:
     name: gateway-service
-
   cloud:
     gateway:
       server:
         webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
           routes:
-            -  id: root-redirect
-               uri: http://localhost:8081
-               predicates:
+            - id: root-redirect
+              uri: lb://product-service
+              predicates:
                 - Path=/
-               filters:
-                  - RedirectTo=302, /products
+              filters:
+                - RedirectTo=302, /products
             - id: auth-service
-              uri: http://localhost:8082
+              uri: lb://auth-service
               predicates:
-                - Path=/auth/**
-
+                - Path=/auth/**, /**.css, /**.js
             - id: product-service
-              uri: http://localhost:8081
+              uri: lb://product-service
               predicates:
-               - Path=/products/**
-
+                - Path=/products/**
             - id: cart-service
-              uri: http://localhost:8083
+              uri: lb://cart-service
               predicates:
                 - Path=/cart/**
-
             - id: order-service
-              uri: http://localhost:8084
+              uri: lb://order-service
               predicates:
                 - Path=/order/**
-
             - id: user-service
-              uri: http://localhost:8085
+              uri: lb://user-service
               predicates:
                 - Path=/user/**, /profile, /profile/**
 
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
