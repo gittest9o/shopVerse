@@ -10,6 +10,7 @@ import com.shop.order.service.data.dataClases.OrderInfo;
 import com.shop.order.service.data.dataClases.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -26,7 +27,7 @@ public class OrderController {
     private final KafkaProducerService kafka;
 
 
-
+    @Transactional
     @GetMapping("/confirm")
     public String confirmedOrder(@RequestHeader("X-User-Id") Long userId,
                                  Model model) {

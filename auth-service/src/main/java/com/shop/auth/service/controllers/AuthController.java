@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Controller
@@ -49,8 +50,8 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    @GetMapping("/logout")
+    public void logout(HttpServletResponse response) throws IOException {
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .path("/")
                 .maxAge(0)
@@ -59,6 +60,6 @@ public class AuthController {
 
         response.addHeader("Set-Cookie", cookie.toString());
 
-        return ResponseEntity.ok().body("Logged out");
+        response.sendRedirect("http://localhost:8080/");
     }
 }

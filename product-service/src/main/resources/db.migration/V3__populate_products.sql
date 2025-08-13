@@ -1,0 +1,3 @@
+INSERT INTO products (id, name, description, price, image_url, rating, rating_count) VALUES
+                                                                                         (1, 'iphone 16 pro', NULL, 1899.00, 'https://storage.yandexcloud.net/shopverse/iphone-16-pro-finish-select-202409-6-3inch-blacktitanium.webp', 5, 1),
+                                                                                         (3, 'Sony PlayStation 5', 'накопитель 825 ГБ, разрешение игр 4K UHD (3840x2160), подключение по HDMI, с дисководом, архитектура ГП AMD RDNA 2.0, беспроводной геймпад, 1 шт в комплекте', 700.00, 'https://storage.yandexcloud.net/shopverse/61CELS-zAZL._UF894%2C1000_QL80_.jpg', 4, 13);
