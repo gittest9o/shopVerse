@@ -27,7 +27,7 @@ public class UserController {
 
     @GetMapping
     public String userPage(Model model, @RequestHeader("X-User-Id") Long userId) {
-        //TODO if user = null
+
 
         Optional<User> optionalUser = userRepository.findById(userId);
         User user = optionalUser.get();

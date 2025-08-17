@@ -24,6 +24,9 @@ public class ProductService {
     public List <Product> searchProducts(String query){
         return productRepository.searchProducts(query);
     }
+    public void addProduct(Product product) {
+        productRepository.save(product);
+    }
 
 
 }

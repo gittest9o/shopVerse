@@ -45,6 +45,12 @@
             padding: 10px 0;
         }
 
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .logo {
             font-size: 28px;
             font-weight: 800;
@@ -57,6 +63,31 @@
         .logo i {
             margin-right: 8px;
             color: var(--secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .admin-btn {
+            padding: 10px 20px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .admin-btn:hover {
+            background: #e65c00;
         }
 
         /* Стили для страницы профиля */
@@ -185,10 +216,33 @@
             font-weight: 500;
         }
 
+        /* Стили для истории заказов с горизонтальной прокруткой */
+        .orders-container {
+            margin-top: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #f0f0f0;
+        }
+
+        .orders-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .orders-container::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .orders-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+
         .orders-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            min-width: 600px; /* Уменьшил ширину после удаления колонок */
         }
 
         .orders-table th {
@@ -324,11 +378,6 @@
                 flex-direction: column;
             }
 
-            .orders-table {
-                display: block;
-                overflow-x: auto;
-            }
-
             .action-buttons {
                 flex-direction: column;
                 gap: 10px;
@@ -341,17 +390,40 @@
             .section-title {
                 font-size: 20px;
             }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .admin-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-<!-- Упрощенный Header -->
+<!-- Улучшенный Header с кнопкой админ-панели -->
 <header>
-    <div class="container">
+    <div class="container header-container">
         <a th:href="@{/}" class="logo">
             <i class="fas fa-globe-americas"></i>
             ShopVerse
         </a>
+
+        <div class="header-actions">
+            <a th:href="@{/admin/add/product}" class="admin-btn">
+                <i class="fas fa-plus-circle"></i> Добавить товар
+            </a>
+        </div>
     </div>
 </header>
 
@@ -435,28 +507,30 @@
                 </a>
             </div>
 
-            <table class="orders-table" th:unless="${orders.isEmpty()}">
-                <thead>
-                <tr>
-                    <th>Номер заказа</th>
-                    <th>Дата</th>
-                    <th>Сумма</th>
-                    <th>Статус</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="order : ${orders}">
-                    <td>
-                        <a th:href="@{/orders/{id}(id=${order.id})}" class="order-id" th:text="'#' + ${order.id}">#12345</a>
-                    </td>
-                    <td class="order-date" th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2023 14:30</td>
-                    <td class="order-total" th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}">$99.99</td>
-                    <td>
-                        <span class="order-status status-completed">Завершен</span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="orders-container" th:unless="${orders.isEmpty()}">
+                <table class="orders-table">
+                    <thead>
+                    <tr>
+                        <th>Номер заказа</th>
+                        <th>Дата</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td>
+                            <a th:href="@{/orders/{id}(id=${order.id})}" class="order-id" th:text="'#' + ${order.id}">#12345</a>
+                        </td>
+                        <td class="order-date" th:text="${#temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2023 14:30</td>
+                        <td class="order-total" th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}">$99.99</td>
+                        <td>
+                            <span class="order-status status-completed">Завершен</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </main>
@@ -470,5 +544,33 @@
     </div>
 </footer>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Плавная анимация при наведении на кнопки
+        const buttons = document.querySelectorAll('.btn, .admin-btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            });
+
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Анимация загрузки аватара
+        const avatar = document.querySelector('.profile-avatar');
+        if (avatar) {
+            setTimeout(() => {
+                avatar.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    avatar.style.transform = 'scale(1)';
+                }, 300);
+            }, 500);
+        }
+    });
+</script>
 </body>
 </html>

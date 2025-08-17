@@ -40,6 +40,11 @@ spring:
               predicates:
                 - Path=/user/**, /profile, /profile/**
 
+            - id: admin-service
+              uri: lb://admin-service
+              predicates:
+                - Path=/admin/**
+
 eureka:
   client:
     service-url:

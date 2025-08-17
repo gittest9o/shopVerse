@@ -200,6 +200,7 @@ services:
       SPRING_MAIL_PORT: 587
       SPRING_MAIL_USERNAME: antkatorets@gmail.com
       SPRING_MAIL_PASSWORD: wbwm yolz bsuk mmpv
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     depends_on:
       kafka:
         condition: service_healthy
