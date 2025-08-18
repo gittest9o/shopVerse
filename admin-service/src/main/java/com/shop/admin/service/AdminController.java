@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +23,9 @@ public class AdminController {
         return "addProduct";
     }
 
+
     @PostMapping("/add/product")
+    @Transactional
     public ResponseEntity<?> addProduct(@RequestBody ProductDTO product) {
         productClient.addProduct(product);
         kafkaTemplate.send("product-topic", product);
