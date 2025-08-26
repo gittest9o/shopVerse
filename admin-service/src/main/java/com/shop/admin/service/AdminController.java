@@ -32,4 +32,14 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/reindex")
+    @Transactional
+    public ResponseEntity<?> reindex() {
+        List <ProductDTO> products = productClient.getAllProducts;
+        for(Product product : products){
+             kafkaTemplate.send("product-topic", product);
+        }
+
+        return ResponseEntity.ok().build();
+    }
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.List;
 
 @org.springframework.web.bind.annotation.RestController
 @RequiredArgsConstructor
@@ -13,7 +14,6 @@ import java.util.Optional;
 public class RestController {
 
     private final ProductService productService;
-
 
     @GetMapping("/{id}")
     public Product getProductById(@PathVariable("id") Long id) {
@@ -24,5 +24,10 @@ public class RestController {
     @PostMapping("/add")
     public void addProduct(@RequestBody Product product) {
         productService.addProduct(product);
+    }
+
+     @GetMapping("/get")
+    public List <Product> getAllProducts() {
+        return productService.getAllProducts;
     }
 }
