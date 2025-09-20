@@ -28,6 +28,6 @@ public class RestController {
 
      @GetMapping("/get")
     public List <Product> getAllProducts() {
-        return productService.getAllProducts;
+        return productService.getAllProducts();
     }
 }

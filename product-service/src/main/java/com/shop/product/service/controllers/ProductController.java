@@ -1,5 +1,6 @@
 package com.shop.product.service.controllers;
 
+import com.shop.product.service.client.SearchClient;
 import com.shop.product.service.product.entity.Product;
 import com.shop.product.service.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.Optional;
 @org.springframework.stereotype.Controller
 public class ProductController {
 
-
+    private final SearchClient searchClient;
     private final ProductService productService;
 
     @GetMapping
@@ -27,7 +28,12 @@ public class ProductController {
 
         List<Product> products;
         if (searchQuery != null) {
-            products = productService.searchProducts(searchQuery);
+            try {
+                products = searchClient.search(searchQuery);
+            }catch (Exception e){
+                products = productService.searchProducts(searchQuery);
+            }
+
             model.addAttribute("searchQuery", searchQuery);
         } else {
             products = productService.getAllProducts();

@@ -45,6 +45,11 @@ spring:
               predicates:
                 - Path=/admin/**
 
+            - id: search-service
+              uri: lb://search-service
+              predicates:
+                - Path=/search/**
+
 eureka:
   client:
     service-url:

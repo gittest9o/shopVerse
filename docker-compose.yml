@@ -207,10 +207,139 @@ services:
     networks:
       - shop-network
 
+  # ---------------------------
+  # Elasticsearch (added)
+  # ---------------------------
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - shop-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  # ---------------------------
+  # Admin service (added earlier)
+  # ---------------------------
+  admin-service:
+    image: admin-service:latest
+    build:
+      context: ./admin-service
+      dockerfile: Dockerfile
+    ports:
+      - "8111:8111"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+
+    depends_on:
+      eureka-server:
+        condition: service_started
+    networks:
+      - shop-network
+
+  # ---------------------------
+  # Search service (ВАШ MICROSERVICE) — добавлен сюда
+  # ---------------------------
+  search-service:
+    image: search-service:latest
+    build:
+      context: ./elasticsearch-service
+      dockerfile: Dockerfile
+    ports:
+      - "8099:8099"
+    environment:
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+      # заставляем Spring подключаться к контейнеру elasticsearch
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      # пробрасываем Kafka (если сервис использует Kafka)
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      # порт из вашего конфига
+      SERVER_PORT: 8099
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    networks:
+      - shop-network
+    healthcheck:
+      # при наличии actuator: /actuator/health, иначе можно убрать healthcheck
+      test: ["CMD-SHELL", "curl -f http://localhost:8099/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      monitoring:
+        aliases:
+          - grafana
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus:/prometheus
+    networks:
+      monitoring:
+        aliases:
+          - prometheus
+      shop-network:
+
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: root1
+    networks:
+      - shop-network
+
+    ports:
+      - "8090:8080"
+    depends_on:
+      - mysql
+    command:
+      - start-dev
+
 networks:
   shop-network:
     driver: bridge
+  monitoring:
 
 volumes:
   mysql-data:
   redis-data:
+  esdata:

@@ -6,7 +6,7 @@ COPY target/*.jar app.jar
 COPY src/main/resources/application.yml ./config/
 
 # Открываем порт сервиса
-EXPOSE 8086
+EXPOSE 8099
 
 # Запускаем приложение
 CMD ["java", "-jar", "app.jar", "--spring.config.location=classpath:/,file:./config/"]
