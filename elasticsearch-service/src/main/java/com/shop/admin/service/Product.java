@@ -1,4 +1,4 @@
-package com.shop.elasticsearch.service;
+package com.shop.admin.service;
 
 
 import lombok.Data;
